@@ -20,18 +20,9 @@ In order to edit the config of the plugin, you will need a keyboard. If you are 
 To set up the plugin, you need to edit it and change values present in the top of the file.
  
 ### Groups  
-The first step is to set the group that you want to include in your color picker.  
-Add them between the brackets separated by comma.  
-  
-![](https://i.ibb.co/LtYhcpm/image4.png)
-  
-You can create submaster groups by adding a sub-bracket group.  
-  
-![](https://i.ibb.co/mJdsYBD/image6.png)
-  
-The sub-group will get its own masters that will react to the previous masters.  
-  
-![](https://i.ibb.co/p2zhps7/image5.png)
+With textinput version, you must add the groups one by one in a text input, once all your groups have been added you just have to press "enter".
+
+Please note, you cannot yet create a sub master
   
 ### First executor ID  
   
