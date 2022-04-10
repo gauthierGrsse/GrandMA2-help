@@ -52,7 +52,9 @@ local colors = {{
     ["swatchbook"] = '"Lee"."full CT orange"'
 }, {
     ["name"] = "White CTB",
-    ["swatchbook"] = '8.120'
+    ['red'] = 100,
+    ['green'] = 100,
+    ['blue'] = 100
 }, {
     ['name'] = 'Red',
     ['red'] = 100,
