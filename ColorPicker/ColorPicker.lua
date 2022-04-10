@@ -1,4 +1,4 @@
--- ColorPicker v8 - Florian ANAYA - 2020
+-- ColorPicker v9 - Florian ANAYA - 2020-2021
 -- https://github.com/FlorianANAYA/GrandMA2-help
 -- This plugin will create a color picker in a layout view for several
 -- groups of fixtures. It automatically creates and imports images into GMA2
@@ -27,7 +27,7 @@ local groups
 -- there are groups declared above)
 -- If one of the executors already exists, the program will not execute.
 -- It must include the exec page, the format is X.XXX (ie. 1.101, 5.001 or 7.015)
-local execId = 1.101
+local execId
 
 -- The ID of the layout to use.
 -- The provided layout must be empty or the plugin won't work.
@@ -698,6 +698,26 @@ createImage = function(red, green, blue, full, imageId)
     os.remove(encodedPath)
 end
 
+
+createDeleteColorPickerMacro = function()
+    local content
+    if (useImages) then
+        content ='<?xml version="1.0" encoding="utf-8"?><MA major_vers="0" minor_vers="0" stream_vers="0"><Info datetime="1970-01-01T00:00:00" showfile="" /><Macro index="0" name="Delete Color Picker"><Macroline index="0"><text>LUA "if gma.gui.confirm(\'Delete color picker ?\', \'Will be deleted: macros ' .. tostring(firstMacroId) .. '-' .. tostring(lastMacroId) .. ', layout ' .. tostring(layoutId) ..', executors ' .. tostring(execPage) .. '.' .. tostring(firstExecId) .. '-' .. tostring(execPage) .. '.' .. tostring(lastExecId) .. ', images ' .. tostring(firstImageId) .. '-' .. tostring(lastImageId) .. '\') then gma.cmd(\'Goto Macro 1.' .. tostring(currentMacroId) .. '.3\') end"</text></Macroline><Macroline index="1"><text>Off Macro 1.' .. tostring(currentMacroId) .. '</text></Macroline><Macroline index="2"><text>Delete Layout ' .. tostring(layoutId) .. '</text></Macroline><Macroline index="3"><text>Delete Image ' .. tostring(firstImageId) .. ' Thru ' .. tostring(lastImageId) .. '</text></Macroline><Macroline index="4"><text>Off Executor ' .. tostring(execPage) .. '.' .. tostring(firstExecId) .. ' Thru ' .. tostring(execPage) .. '.' .. tostring(lastExecId) .. '</text></Macroline><Macroline index="5"><text>Delete Executor ' .. tostring(execPage) .. '.' .. tostring(firstExecId) .. ' Thru ' .. tostring(execPage) .. '.' .. tostring(lastExecId) .. '</text></Macroline><Macroline index="6"><text>Delete Macro 1.' .. tostring(firstMacroId) .. ' Thru 1.' .. tostring(lastMacroId) .. '</text></Macroline></Macro></MA>'
+    else
+        content ='<?xml version="1.0" encoding="utf-8"?><MA major_vers="0" minor_vers="0" stream_vers="0"><Info datetime="1970-01-01T00:00:00" showfile="" /><Macro index="0" name="Delete Color Picker"><Macroline index="0"><text>LUA "if gma.gui.confirm(\'Delete color picker ?\', \'Will be deleted: macros ' .. tostring(firstMacroId) .. '-' .. tostring(lastMacroId) .. ', layout ' .. tostring(layoutId) ..', executors ' .. tostring(execPage) .. '.' .. tostring(firstExecId) .. '-' .. tostring(execPage) .. '.' .. tostring(lastExecId) .. '\') then gma.cmd(\'Goto Macro 1.' .. tostring(currentMacroId) .. '.3\') end"</text></Macroline><Macroline index="1"><text>Off Macro 1.' .. tostring(currentMacroId) .. '</text></Macroline><Macroline index="2"><text>Delete Layout ' .. tostring(layoutId) .. '</text></Macroline><Macroline index="3"><text>Off Executor ' .. tostring(execPage) .. '.' .. tostring(firstExecId) .. ' Thru ' .. tostring(execPage) .. '.' .. tostring(lastExecId) .. '</text></Macroline><Macroline index="4"><text>Delete Executor ' .. tostring(execPage) .. '.' .. tostring(firstExecId) .. ' Thru ' .. tostring(execPage) .. '.' .. tostring(lastExecId) .. '</text></Macroline><Macroline index="5"><text>Delete Macro 1.' .. tostring(firstMacroId) .. ' Thru 1.' .. tostring(lastMacroId) .. '</text></Macroline></Macro></MA>'
+    end
+  
+    local fileName = "macrotemp.xml"
+    local filePath = gma.show.getvar('PATH') ..  '/macros/' .. fileName
+    local file = io.open(filePath, "w")
+    file:write(content)
+    file:close()
+    
+    gma.cmd('Import "' .. fileName .. '" Macro ' .. tostring(currentMacroId))
+    gma.sleep(0.05)
+    currentMacroId = currentMacroId + 1
+end
+
 -----------------------
 -- base64 library
 -- https://github.com/iskolbin/lbase64/blob/master/base64.lua
@@ -872,24 +892,25 @@ local function start()
     gma.cmd("ClearAll")
 
     -- We initialize variables (in case the plugin is executed twice without being reloaded)
-    firstMacroId = 1
-    currentMacroId = 1
-    lastMacroId = 1
+    firstMacroId = tonumber(gma.textinput("First Macro ID ?", "1000"))
+    currentMacroId = firstMacroId
+    lastMacroId = firstMacroId
     nbNeededMacros = 0
     nbNeededExecs = 0
-    firstImageId = 14
-    currentImageId = 14
-    lastImageId = 14
-    firstEmptyImageId = 14
-    lastEmptyImageId = 14
-    firstFullImageId = 14
-    lastFullImageId = 14
+    firstImageId = 100
+    currentImageId = 100
+    lastImageId = 100
+    firstEmptyImageId = 100
+    lastEmptyImageId = 100
+    firstFullImageId = 100
+    lastFullImageId = 100
     nbNeededImages = nbColors * 2
 
     x = startX
     y = startY
 
     -- We find the specified exec page and exec ID and verify they are correct
+    execId = tonumber(gma.textinput("First Exec ID ?", "99.101"))
     execPage = math.floor(execId)
     firstExecId = math.tointeger(tostring((execId - execPage) * 1000))
     if (execPage <= 0 or firstExecId <= 0) then
